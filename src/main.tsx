@@ -27,9 +27,8 @@ Devvit.addTrigger({
       const { redis } = context;
     if(event.post.nsfw)
     {
-        console.log(event.author.name)
         //CHECK IF ON LIST
-        const value = await redis.get(event.author.id);
+        const value = await redis.get(event.author.name);
         if(value == event.author.name)
         {
             //Not allowed to make this nsfw post
@@ -52,7 +51,7 @@ Devvit.addTrigger({
 
     if(event.post.nsfw)
     {
-        const value = await redis.get(event.author.id);
+        const value = await redis.get(event.author.name);
         if(value == event.author.name)
         {
             //Not allowed to make this comment
@@ -75,7 +74,7 @@ Devvit.addMenuItem({
     
     const { redis } = context;
     const post = await context.reddit.getPostById(context.postId);
-    const key = post.authorId;
+    const key = post.authorName;
     await redis.set(key, post.authorName);
 
   },
@@ -89,7 +88,7 @@ Devvit.addMenuItem({
     
     const { redis } = context;
     const post = await context.reddit.getPostById(context.postId);
-    const key = post.authorId;
+    const key = post.authorName;
     await redis.del(key);
 
   },
@@ -103,7 +102,7 @@ Devvit.addMenuItem({
     
     const { redis } = context;
     const comment = await context.reddit.getCommentById(context.commentId);
-    const key = comment.authorId;
+    const key = comment.authorName;
     await redis.set(key, comment.authorName);
 
   },
@@ -117,7 +116,7 @@ Devvit.addMenuItem({
     
     const { redis } = context;
     const comment = await context.reddit.getCommentById(context.commentId);
-    const key = comment.authorId;
+    const key = comment.authorName;
     await redis.del(key);
 
   },
