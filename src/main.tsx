@@ -95,7 +95,7 @@ Devvit.addMenuItem({
 });
 
 Devvit.addMenuItem({
-  label: 'Add user to list of minors',
+  label: 'Add user to list of users not allowed NSFW',
   location: 'comment',
   forUserType: 'moderator',
   onPress: async (event, context) => {
@@ -109,7 +109,7 @@ Devvit.addMenuItem({
 });
 
 Devvit.addMenuItem({
-  label: 'Remove user from list of minors',
+  label: 'Remove user from list of users not allowed NSFW',
   location: 'comment',
   forUserType: 'moderator',
   onPress: async (event, context) => {
