@@ -1,0 +1,1 @@
+A bot to easily report when a set group of users tries to interact or make a NSFW post. Useful for keeping minors off of NSFW posts. Code: https://github.com/EliotWL/no-nsfw-4-u-bot
