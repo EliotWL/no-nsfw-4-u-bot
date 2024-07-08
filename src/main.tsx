@@ -18,6 +18,38 @@ Devvit.addSettings([
     name: 'commentReportReason',
     label: 'What should the comments reported for this be reported as?',
 },
+{
+    type: 'string',
+    name: 'modnoteText',
+    label: 'What should the mod note say?',
+},
+{
+    type: 'select',
+    name: 'modNoteType',
+    label: 'What type of mod note?',
+    options: [
+      {
+        label: 'Abuse Warning',
+        value: 'ABUSE_WARNING'
+      },
+      {
+        label: 'Spam Warning',
+        value: 'SPAM_WARNING'
+      },
+      {
+        label: 'Spam Watch',
+        value: 'SPAM_WATCH'
+      },
+      {
+        label: 'Good Contributor',
+        value: 'SOLID_CONTRIBUTOR'
+      },
+      {
+        label: 'Helpful',
+        value: 'HELPFUL_USER'
+      }
+    ]
+}
 ]);
 
 Devvit.addTrigger({
@@ -75,8 +107,22 @@ Devvit.addMenuItem({
     const { redis } = context;
     const post = await context.reddit.getPostById(context.postId);
     const key = post.authorName;
-    await redis.set(key, post.authorName);
-
+    
+    const value = await redis.get(post.authorName);
+    if(value != post.authorName)
+    {
+        await redis.set(key, post.authorName);
+    
+        const subreddit = await context.reddit.getSubredditById(context.subredditId)
+        const labelType = await context.settings.get('modNoteType')
+        await context.reddit.addModNote({
+            redditId: context.postId, 
+            label: labelType.toString(), 
+            note: await context.settings.get('modnoteText'), 
+            subreddit: subreddit.name, 
+            user: post.authorName,
+        })
+    }
   },
 });
 
@@ -103,8 +149,20 @@ Devvit.addMenuItem({
     const { redis } = context;
     const comment = await context.reddit.getCommentById(context.commentId);
     const key = comment.authorName;
-    await redis.set(key, comment.authorName);
-
+    const value = await redis.get(comment.authorName);
+    if(value != comment.authorName)
+    {
+        await redis.set(key, comment.authorName);
+        const subreddit = await context.reddit.getSubredditById(context.subredditId)
+        const labelType = await context.settings.get('modNoteType')
+        await context.reddit.addModNote({
+            redditId: context.commentId, 
+            label: labelType.toString(), 
+            note: await context.settings.get('modnoteText'), 
+            subreddit: subreddit.name, 
+            user: comment.authorName,
+         })
+    }
   },
 });
 
