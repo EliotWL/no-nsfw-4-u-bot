@@ -26,7 +26,7 @@ Devvit.addSettings([
 {
     type: 'select',
     name: 'modNoteType',
-    label: 'What type of mod note?',
+    label: 'What type of mod note? (Leaving this blank will make a regular mod note)',
     options: [
       {
         label: 'Abuse Warning',
@@ -111,17 +111,20 @@ Devvit.addMenuItem({
     const value = await redis.get(post.authorName);
     if(value != post.authorName)
     {
-        await redis.set(key, post.authorName);
+        
     
         const subreddit = await context.reddit.getSubredditById(context.subredditId)
         const labelType = await context.settings.get('modNoteType')
-        await context.reddit.addModNote({
+        const modNote = await context.reddit.addModNote({
             redditId: context.postId, 
             label: labelType.toString(), 
             note: await context.settings.get('modnoteText'), 
             subreddit: subreddit.name, 
             user: post.authorName,
         })
+        
+        await redis.set(key, modNote.id);
+        
     }
   },
 });
@@ -133,8 +136,15 @@ Devvit.addMenuItem({
   onPress: async (event, context) => {
     
     const { redis } = context;
+    const subreddit = await context.reddit.getSubredditById(context.subredditId)
     const post = await context.reddit.getPostById(context.postId);
     const key = post.authorName;
+    const modNote = await redis.get(key)
+    await context.reddit.deleteModNote({
+            noteId: modNote,
+            subreddit: subreddit.name,
+            user: key
+        });
     await redis.del(key);
 
   },
@@ -152,16 +162,17 @@ Devvit.addMenuItem({
     const value = await redis.get(comment.authorName);
     if(value != comment.authorName)
     {
-        await redis.set(key, comment.authorName);
+        
         const subreddit = await context.reddit.getSubredditById(context.subredditId)
         const labelType = await context.settings.get('modNoteType')
-        await context.reddit.addModNote({
+        const modNote = await context.reddit.addModNote({
             redditId: context.commentId, 
             label: labelType.toString(), 
             note: await context.settings.get('modnoteText'), 
             subreddit: subreddit.name, 
             user: comment.authorName,
          })
+         await redis.set(key, modNote.id);
     }
   },
 });
@@ -173,8 +184,15 @@ Devvit.addMenuItem({
   onPress: async (event, context) => {
     
     const { redis } = context;
+    const subreddit = await context.reddit.getSubredditById(context.subredditId)
     const comment = await context.reddit.getCommentById(context.commentId);
     const key = comment.authorName;
+    const modNote = await redis.get(key)
+    await context.reddit.deleteModNote({
+            noteId: modNote,
+            subreddit: subreddit.name,
+            user: key
+        });
     await redis.del(key);
 
   },
